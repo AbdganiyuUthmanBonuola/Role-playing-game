@@ -67,7 +67,7 @@ const locations = [
     {
         name: "kill monster",
         "button text":["Go to town squre","Go to town squre","Go to town squre"],
-        "button functions": [goTown,goTown,goTown],
+        "button functions": [goTown,goTown,easterEgg],
         text: 'The monster screams "Arg!" as it dies. you gain experiance pionts and find gold.'
     },
     {
@@ -81,6 +81,12 @@ const locations = [
         "button text": ["REPLAY?","REPLAY?","REPLAY?"],
         "button functions": [restart,restart,restart],
         text: "You defeat the dragon! YOU WIN THE GAME!S"
+    },
+    {
+        name:"easter egg",
+        "button text":["2","8","Go to town squre?"],
+        "button functions":[pickTwo,pickEight,goTown],
+        text: "You find a secretgame. pick a numbers willbe randomly chosen btween 0 and 10.if the nymber you choose matches one of the random numbers,you win!s"
     }
 ];
 
@@ -182,7 +188,11 @@ function attack() {
     text.innerText = "The " + monsters[fighting].name + " attacks."
     text.innerText += " you attack it with your" +  weapons[currentWeapon].name + ".";
      health -= getMonsterAttackValue(monsters[fighting].level);
+   if (isMonsterHit()) {
     monsterHelth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1; 
+   } else {
+    text.innerText += " You miss."
+   }
     healthText.innerText = health;
     monsterHealthText.innerText = monsterHelth;
     if (health <= 0) {
@@ -194,12 +204,20 @@ function attack() {
                 defeatMonster();
             }
         }
+        if (Math.random() <= .1 && inventory.length !== 1) {
+            text.innerText += " Your " + inventory.pop() + " breaks.";
+            currentWeapon--;
+        }
     }
 
 function getMonsterAttackValue(level) {
     const hit = (level * 5 ) - (Math.floor(Math.random() * xp));
     console.log(hit);
-    return(hit)
+    return hit > 0 ? hit : 0;
+}
+
+function isMonsterHit() {
+    return Math.random() > .2 || health < 20;
 }
 
 function dodge() {
@@ -233,3 +251,35 @@ function restart() {
     xpText.innerText = xp;
     goTown();
 }
+
+function easterEgg() {
+    update(locations[7]);
+}
+
+function pickTwo() {
+    pick(2);
+}
+
+function pickEight() {
+    pick(8);
+}
+
+function pick(guess) {
+    const numbers =[];
+    while (numbers.length < 10) {
+        numbers.push(Math.floor(Math.random() * 11));
+    }
+    text.innerText = ". Hereare the random numbers:\n";
+    for (let i = 0; i < 10; i++){
+        text.innerText += numbers[i] + "\n";
+    }
+    if (numbers.includes(guess)) {
+        text.innerText += "Right! you win 20 gold!"
+        gold += 20;
+        goldText.innerText = gold;
+    }  else {
+        text.innerText += "Wrong! you lose 10 health!";
+        health -= 10;
+        healthText += health;
+    } 
+} 
